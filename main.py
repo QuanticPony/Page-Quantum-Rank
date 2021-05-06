@@ -71,6 +71,15 @@ def equal(P1,P2, delta):
     return True
 
 
+def print_rank(P):
+    '''
+    Prints out via terminal the nodes and the page rank given `P`
+    '''
+    print('Pagerank:')
+    t = np.argsort(P)[::-1]
+    for i in t:
+        print(i+1, P[i])
+        
 
 if __name__=='__main__':
     A_ij = read_links('simple-net.txt', 8)
@@ -85,8 +94,8 @@ if __name__=='__main__':
         P = evolve(Pnew, PI_ij)
         #print(P)
     P=P/sum(P)
-    for i in range(8):
-        print(i+1, P[i])
+    print_rank(P)
+        
         
     print('_________________________')
     
@@ -99,8 +108,7 @@ if __name__=='__main__':
         P = evolveG(Pnew, PI_ij)
         #print(P)
     P=P/sum(P)
-    for i in range(8):
-        print(i+1, P[i])
+    print_rank(P)
         
     print('_________________________')
 
