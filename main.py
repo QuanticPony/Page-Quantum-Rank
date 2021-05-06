@@ -3,8 +3,10 @@ import numpy as np
 from collections import defaultdict
 
 
-
 def read_links(filename, n_nodes):
+    '''
+    Reads a file and returns the adjacency matrix
+    '''
     cero = lambda : 0
     A_ij = [defaultdict(cero) for _ in range(n_nodes)]
 
@@ -19,10 +21,12 @@ def read_links(filename, n_nodes):
             for line in file:
                 i,j = map(int, line.split())
                 A_ij[i].update({j:1})
-
     return A_ij
 
 def calculate_PI(a_ij):
+    '''
+    Given the adjacency matrix returns the transition matrix
+    '''
     n_nodes = len(a_ij)
     cero = lambda : 0
     PI_ij = [defaultdict(cero) for _ in range(n_nodes)]
@@ -32,31 +36,41 @@ def calculate_PI(a_ij):
         
         out_grade = sum(ai.values())
         for j in PI_ij[i].keys():
-            PI_ij[i][j] /= out_grade
-            #PI_ij[i].update({j:PI_ij[i][j]/out_grade})
-            
+            PI_ij[i][j] /= out_grade    
     return PI_ij
 
-
 def evolve(P, PI_ij):
+    '''
+    Evolves the system a temporal discrete step using the transition matrix
+    '''
     Pnew=np.zeros(len(P))
     for i in range(len(P)):
         for j in range(len(P)):
-            Pnew[i] += P[j] * PI_ij[i][j]
+            Pnew[i] += P[j] * PI_ij[j][i]
     return Pnew     
 
 def evolveG(P, PI_ij, q=0.9):
+    '''
+    Evolves the system a temporal discrete step using the Google matrix
+    '''
     F = (1-q)/(len(P)-1)
     Pnew=np.zeros(len(P))
     for i in range(len(P)):
         for j in range(len(P)):
-            Pnew[i] += P[j] * (q * PI_ij[i][j]+ (i!=j)*F)
+            Pnew[i] += P[j] * (q * PI_ij[j][i]+ (i!=j)*F)
     return Pnew     
     
-    #for i, PIi in enumerate(G_ij):
-    #    for j in PIi.keys():
-    #        Pnew[i] += PIi[j]*P[j]
     
+def equal(P1,P2, delta):
+    '''
+    Returns `True` if all the components in `P1` and `P2` are closer than `delta`. Else returns `False`
+    '''
+    for i,j in zip(P1,P2):
+        if abs(i-j)>delta:
+            return False      
+    return True
+
+
 
 if __name__=='__main__':
     A_ij = read_links('simple-net.txt', 8)
@@ -64,22 +78,40 @@ if __name__=='__main__':
     
     P = np.zeros(8)
     P[0]=1
-    for _ in range(100):
-        P = evolve(P, PI_ij)
+    for _ in range(1000):
+        Pnew = evolve(P, PI_ij)
+        if equal(P, Pnew, 0.0001):
+            break
+        P = evolve(Pnew, PI_ij)
         #print(P)
     P=P/sum(P)
-    #print(P)
-    
-
-    matriz = np.zeros([8,8])
-    q=0.6
-    F = (1-q)/(len(P)-1)
     for i in range(8):
-       for j in range(8):
-           matriz[i,j] = q * PI_ij[i][j]+ (i!=j)*F
-    avec, aval = np.linalg.eig(matriz)
+        print(i+1, P[i])
+        
+    print('_________________________')
+    
+    P = np.zeros(8)
+    P[0]=1
+    for _ in range(1000):
+        Pnew = evolveG(P, PI_ij)
+        if equal(P, Pnew, 0.0001):
+            break
+        P = evolveG(Pnew, PI_ij)
+        #print(P)
+    P=P/sum(P)
+    for i in range(8):
+        print(i+1, P[i])
+        
+    print('_________________________')
 
-    print(avec)
+    #matriz = np.zeros([8,8])
+    #q=0.6
+    #F = (1-q)/(len(P)-1)
+    #for i in range(8):
+    #   for j in range(8):
+    #       matriz[i,j] = q * PI_ij[i][j]+ (i!=j)*F
+    #avec, aval = np.linalg.eig(matriz)
+
+    #print(avec)
     
     #print('pato')
-# %%
