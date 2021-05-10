@@ -2,6 +2,7 @@
 import numpy as np
 from collections import defaultdict
 
+print('Hola Mundo')
 
 def read_links(filename, n_nodes):
     '''
