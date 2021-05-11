@@ -1,8 +1,10 @@
 #%%
+from numba.np.ufunc import parallel
 import numpy as np
 from collections import defaultdict
+from time import time_ns as time
 
-print('Hola Mundo')
+from numba import jit
 
 def read_links(filename, n_nodes):
     '''
@@ -10,6 +12,7 @@ def read_links(filename, n_nodes):
     '''
     cero = lambda : 0
     A_ij = [defaultdict(cero) for _ in range(n_nodes)]
+    A_ji = [defaultdict(cero) for _ in range(n_nodes)]
 
     with open(filename, 'r') as file:
         try:
@@ -23,6 +26,15 @@ def read_links(filename, n_nodes):
                 i,j = map(int, line.split())
                 A_ij[i].update({j:1})
     return A_ij
+
+def transpuesta(b_ij):
+    cero = lambda : 0
+    lenth = len(b_ij)
+    b_ji = [defaultdict(cero) for _ in range(lenth)]
+    for i, b_i in enumerate(b_ij):
+        for j in b_i.keys():
+            b_ji[j].update({i: b_i[j]})
+    return b_ji
 
 def calculate_PI(a_ij):
     '''
@@ -40,7 +52,7 @@ def calculate_PI(a_ij):
             PI_ij[i][j] /= out_grade    
     return PI_ij
 
-def evolve(P, PI_ij):
+def evolve(P, PI_ij,  **kargs):
     '''
     Evolves the system a temporal discrete step using the transition matrix
     '''
@@ -48,6 +60,17 @@ def evolve(P, PI_ij):
     for i in range(len(P)):
         for j in range(len(P)):
             Pnew[i] += P[j] * PI_ij[j][i]
+    return Pnew     
+
+
+def evolve_T(P, PI_ji,  **kargs):
+    '''
+    Evolves the system a temporal discrete step using the transition matrix
+    '''
+    Pnew=np.zeros(len(P))
+    for i, PI_i in enumerate(PI_ji):
+        for j, p in PI_i.items():
+            Pnew[i] += P[j] * p
     return Pnew     
 
 def evolveG(P, PI_ij, q=0.9):
@@ -60,7 +83,7 @@ def evolveG(P, PI_ij, q=0.9):
         for j in range(len(P)):
             Pnew[i] += P[j] * (q * PI_ij[j][i]+ (i!=j)*F)
     return Pnew     
-    
+
     
 def equal(P1,P2, delta):
     '''
@@ -86,32 +109,51 @@ if __name__=='__main__':
     A_ij = read_links('simple-net.txt', 8)
     PI_ij = calculate_PI(A_ij)
     
-    P = np.zeros(8)
-    P[0]=1
-    for _ in range(1000):
-        Pnew = evolve(P, PI_ij)
-        if equal(P, Pnew, 0.0001):
-            break
-        P = evolve(Pnew, PI_ij)
-        #print(P)
-    P=P/sum(P)
-    print_rank(P)
+    def page_rank(a_ij, evolve_func, equal_func, *, q=0.9, P=None, max_iters=1000, delta=0.000001, _transpuesta=False):
+        pi_ij = calculate_PI(a_ij)
+        if _transpuesta:
+            pi_ij = transpuesta(pi_ij)
+            
+        if P is None:
+            P = np.zeros(8)
+            P[0]=1
         
-        
-    print('_________________________')
+        time_in = float(time())
+        for _ in range(max_iters):
+            Pnew = evolve_func(P, pi_ij, q=q)
+            if equal(P, Pnew, delta):
+                break
+            P = evolve_func(Pnew, pi_ij)
+        print(f'Tiempo transcurrido: {(time()-time_in)*1e-6:.6f}ms')
+        P=P/sum(P)
+        print_rank(P)
     
-    P = np.zeros(8)
-    P[0]=1
-    for _ in range(1000):
-        Pnew = evolveG(P, PI_ij)
-        if equal(P, Pnew, 0.0001):
-            break
-        P = evolveG(Pnew, PI_ij)
-        #print(P)
-    P=P/sum(P)
-    print_rank(P)
-        
-    print('_________________________')
+    
+    
+    print('*************************')
+    page_rank(A_ij, evolve, equal)
+    
+    print('*************************')
+    page_rank(A_ij, evolve_T, equal, _transpuesta=True)
+    print('*************************')
+    
+    page_rank(A_ij, evolveG, equal)
+    print('*************************')
+    
+    #P = np.zeros(8)
+    #P[0]=1
+    #time_in = time()
+    #for _ in range(1000):
+    #    Pnew = evolveG(P, PI_ij)
+    #    if equal(P, Pnew, 0.0001):
+    #        break
+    #    P = evolveG(Pnew, PI_ij)
+    #    #print(P)
+    #print(time()-time_in)
+    #P=P/sum(P)
+    #print_rank(P)
+    #    
+    #print('_________________________')
 
     #matriz = np.zeros([8,8])
     #q=0.6
