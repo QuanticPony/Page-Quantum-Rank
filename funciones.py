@@ -2,6 +2,7 @@ from collections import defaultdict
 from time import time_ns as time
 
 import numpy as np
+from qutip import *
 
 cero = lambda : 0
 
@@ -77,6 +78,25 @@ def calculate_PI(a_ij):
             PI_ij[i][j] /= out_grade    
     return PI_ij
 
+
+def calculate_G(PI_ij, q=0.9):
+    '''
+    Given the transition matrix returns the Google matrix
+    '''
+    n_nodes = len(PI_ij)
+    F = (1-q)/(len(PI_ij)-1)
+    fero = lambda : F
+    
+    G_ij = [defaultdict(fero) for _ in range(n_nodes)]
+    
+    for i, ai in enumerate(PI_ij):
+        G_ij[i].update(ai.copy())
+        
+        out_grade = sum(ai.values())
+        for j in G_ij[i].keys():
+            G_ij[i][j] = (q * PI_ij[i][j]+ (i!=j)*F)   
+    return G_ij
+
 def evolve(P, PI_ij,  **kargs):
     '''
     Evolves the system a temporal discrete step using the transition matrix
@@ -98,7 +118,7 @@ def evolve_T(P, PI_ji,  **kargs):
             Pnew[i] += P[j] * p
     return Pnew     
 
-def evolveG(P, PI_ij, q=0.9):
+def evolveG(P, G_ij, q=0.9):
     '''
     Evolves the system a temporal discrete step using the Google matrix
     '''
@@ -106,10 +126,9 @@ def evolveG(P, PI_ij, q=0.9):
     Pnew=np.zeros(len(P))
     for i in range(len(P)):
         for j in range(len(P)):
-            Pnew[i] += P[j] * (q * PI_ij[j][i]+ (i!=j)*F)
-    return Pnew     
+            Pnew[i] += P[j] * G_ij[j][i]
+    return Pnew
 
-    
 def equal(P1,P2, delta):
     '''
     Returns `True` if all the components in `P1` and `P2` are closer than `delta`. Else returns `False`
@@ -124,10 +143,11 @@ def print_rank(P):
     '''
     Prints out via terminal the nodes and the page rank given `P`
     '''
+    P=P/sum(P)
     print('Pagerank:')
     t = np.argsort(P)[::-1]
     for i in t:
-        print(i+1, P[i])
+        print(i+1, f"{P[i]:.6}")
         
         
 def page_rank(a_ij, evolve_func, equal_func, *, q=0.9, P=None, max_iters=1000, delta=0.000001, _transpuesta=False):
@@ -146,7 +166,6 @@ def page_rank(a_ij, evolve_func, equal_func, *, q=0.9, P=None, max_iters=1000, d
             break
         P = evolve_func(Pnew, pi_ij)
     print(f'Tiempo transcurrido: {(time()-time_in)*1e-6:.6f}ms')
-    P=P/sum(P)
     print_rank(P)
 
 
@@ -154,17 +173,18 @@ def page_rank(a_ij, evolve_func, equal_func, *, q=0.9, P=None, max_iters=1000, d
 #operadores cuanticos
 
 def L_ij(i,j,N=8):
-    L=np.zeros((N,N))
-    L[i,j]=1
-    return L
+    
+    return basis(N,i)*(basis(N,j).dag())
+    
 
-def H_ij(Pi_ij,N=8):
+
+def H_ij(M_ij,N=8):
     H=np.zeros((N,N))
     for i in range(N):
         for j in range(i,N):
-            if Pi_ij[i][j]>0 or Pi_ij[j][i]>0:
-                H[i,j]=H[j,i]=1
-    
-    return H
+            if M_ij[i][j]>0 or M_ij[j][i]>0:
+                H[i,j] = H[j,i]=1
+    return Qobj(H)
 
-#def 
+if __name__=='__main__':
+    print(L_ij(1,2, 4))
