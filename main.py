@@ -1,6 +1,4 @@
 #%%
-from collections import defaultdict
-
 import numpy as np
 from qutip import *
 from qutip.steadystate import steadystate
@@ -18,17 +16,13 @@ def Liouvillian(alpha, PI_ij, H):
 
 
 if __name__=='__main__':
-
     n_nodes=8
     A_ij = read_links('simple-net.txt', n_nodes)
-    H_ij = convert_to_matrix(A_ij)
     
-    #print_matrix(H_ij)
     PI_ij = calculate_PI(A_ij)
     G_ij = calculate_G(PI_ij)
     
-    H = Qobj(H_ij)
-    
+    H = Hamiltonian(PI_ij)
     
     L = Liouvillian(0.8, G_ij, H)
     
@@ -37,8 +31,10 @@ if __name__=='__main__':
     for i in range(n_nodes):
         P[i] = np.real(p[i,i])
     
-    
     print_rank(P)
+    
+    
+    
     #print('*************************')
     #page_rank(A_ij, evolve, equal)
     #

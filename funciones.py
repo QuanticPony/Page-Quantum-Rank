@@ -178,12 +178,12 @@ def L_ij(i,j,N=8):
     
 
 
-def H_ij(M_ij,N=8):
+def Hamiltonian(M_ij,N=8):
     H=np.zeros((N,N))
     for i in range(N):
         for j in range(i,N):
             if M_ij[i][j]>0 or M_ij[j][i]>0:
-                H[i,j] = H[j,i]=1
+                H[i,j] = H[j,i]= 1
     return Qobj(H)
 
 if __name__=='__main__':
