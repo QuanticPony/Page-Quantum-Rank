@@ -2,15 +2,40 @@ from collections import defaultdict
 from time import time_ns as time
 
 import numpy as np
-from numba import jit
-from numba.np.ufunc import parallel
 
+cero = lambda : 0
+
+def convert_to_list(b_ij: np.ndarray):
+    '''
+    Given a matrix `b_ij` it returns a list type array
+    '''
+    n_nodes = b_ij.size
+    B_ij = [defaultdict(cero) for _ in range(n_nodes)]
+    for i in range(n_nodes):
+        for j in range(n_nodes):
+            B_ij[i].update({j : B_ij[i][j]})
+    return B_ij
+
+def convert_to_matrix(B_ij):
+    '''
+    Given a matrix list type array  `B_ij` it returns a matrix
+    '''
+    n_nodes = len(B_ij)
+    b_ij = np.zeros([n_nodes, n_nodes], dtype=np.float16)
+    for i in range(n_nodes):
+        for j in range(n_nodes):
+            b_ij[i][j] = B_ij[i][j]
+    return b_ij
+
+def print_matrix(b_ij):
+    for j in range(len(b_ij)):
+        print(' '.join([f"{b_ij[i][j]:.2f}" for i in range(8)]))
 
 def read_links(filename, n_nodes):
     '''
     Reads a file and returns the adjacency matrix
     '''
-    cero = lambda : 0
+    
     A_ij = [defaultdict(cero) for _ in range(n_nodes)]
     A_ji = [defaultdict(cero) for _ in range(n_nodes)]
 
@@ -28,7 +53,7 @@ def read_links(filename, n_nodes):
     return A_ij
 
 def transpuesta(b_ij):
-    cero = lambda : 0
+    
     lenth = len(b_ij)
     b_ji = [defaultdict(cero) for _ in range(lenth)]
     for i, b_i in enumerate(b_ij):
@@ -41,7 +66,7 @@ def calculate_PI(a_ij):
     Given the adjacency matrix returns the transition matrix
     '''
     n_nodes = len(a_ij)
-    cero = lambda : 0
+    
     PI_ij = [defaultdict(cero) for _ in range(n_nodes)]
     
     for i, ai in enumerate(a_ij):
@@ -106,20 +131,40 @@ def print_rank(P):
         
         
 def page_rank(a_ij, evolve_func, equal_func, *, q=0.9, P=None, max_iters=1000, delta=0.000001, _transpuesta=False):
-        pi_ij = calculate_PI(a_ij)
-        if _transpuesta:
-            pi_ij = transpuesta(pi_ij)
-            
-        if P is None:
-            P = np.zeros(8)
-            P[0]=1
+    pi_ij = calculate_PI(a_ij)
+    if _transpuesta:
+        pi_ij = transpuesta(pi_ij)
         
-        time_in = float(time())
-        for _ in range(max_iters):
-            Pnew = evolve_func(P, pi_ij, q=q)
-            if equal(P, Pnew, delta):
-                break
-            P = evolve_func(Pnew, pi_ij)
-        print(f'Tiempo transcurrido: {(time()-time_in)*1e-6:.6f}ms')
-        P=P/sum(P)
-        print_rank(P)
+    if P is None:
+        P = np.zeros(8)
+        P[0]=1
+    
+    time_in = float(time())
+    for _ in range(max_iters):
+        Pnew = evolve_func(P, pi_ij, q=q)
+        if equal_func(P, Pnew, delta):
+            break
+        P = evolve_func(Pnew, pi_ij)
+    print(f'Tiempo transcurrido: {(time()-time_in)*1e-6:.6f}ms')
+    P=P/sum(P)
+    print_rank(P)
+
+
+
+#operadores cuanticos
+
+def L_ij(i,j,N=8):
+    L=np.zeros((N,N))
+    L[i,j]=1
+    return L
+
+def H_ij(Pi_ij,N=8):
+    H=np.zeros((N,N))
+    for i in range(N):
+        for j in range(i,N):
+            if Pi_ij[i][j]>0 or Pi_ij[j][i]>0:
+                H[i,j]=H[j,i]=1
+    
+    return H
+
+#def 
