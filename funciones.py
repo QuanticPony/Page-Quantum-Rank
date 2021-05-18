@@ -166,6 +166,7 @@ def page_rank(a_ij, evolve_func, equal_func, *, q=0.9, P=None, max_iters=1000, d
         P = evolve_func(Pnew, pi_ij)
     print(f'Tiempo transcurrido: {(time()-time_in)*1e-6:.6f}ms')
     print_rank(P)
+    return P
 
 
 
@@ -177,7 +178,8 @@ def L_ij(i,j,N=8):
     
 
 
-def Hamiltonian(M_ij,N=8):
+def Hamiltonian(M_ij):
+    N = len(M_ij)
     H=np.zeros((N,N))
     for i in range(N):
         for j in range(i,N):
