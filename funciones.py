@@ -156,8 +156,7 @@ def page_rank(a_ij, evolve_func, equal_func, *, q=0.9, P=None, max_iters=1000, d
         pi_ij = transpuesta(pi_ij)
         
     if P is None:
-        P = np.zeros(8)
-        P[0]=1
+        P = np.zeros(len(a_ij))+1/len(a_ij)
     
     time_in = float(time())
     for _ in range(max_iters):
