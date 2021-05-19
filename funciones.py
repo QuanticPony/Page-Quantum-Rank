@@ -139,15 +139,20 @@ def equal(P1,P2, delta):
     return True
 
 
-def print_rank(P):
+def print_rank(P, names=None):
     '''
     Prints out via terminal the nodes and the page rank given `P`
     '''
     P=P/sum(P)
     print('Pagerank:')
     t = np.argsort(P)[::-1]
-    for i in t:
-        print(i+1, f"{P[i]:.6}")
+    if names is not None:
+        for j,i in enumerate(t):
+            print(f'{j+1})', names[i+1], f"{P[i]:.6}")
+    else:
+        for j,i in enumerate(t):
+            print(f'{j+1})', i+1, f"{P[i]:.6}")
+
         
         
 def page_rank(a_ij, evolve_func, equal_func, *, q=0.9, P=None, max_iters=1000, delta=0.000001, _transpuesta=False):
@@ -165,7 +170,6 @@ def page_rank(a_ij, evolve_func, equal_func, *, q=0.9, P=None, max_iters=1000, d
             break
         P = evolve_func(Pnew, pi_ij)
     print(f'Tiempo transcurrido: {(time()-time_in)*1e-6:.6f}ms')
-    print_rank(P)
     return P
 
 
@@ -186,6 +190,16 @@ def Hamiltonian(M_ij):
             if M_ij[i][j]>0 or M_ij[j][i]>0:
                 H[i,j] = H[j,i]= 1
     return Qobj(H)
+
+
+def Liouvillian(alpha, PI_ij, H):
+    n_nodes = len(PI_ij)
+    _Liouvillian = -1j*(1-alpha)*(spre(H)-spost(H))
+    for i in range(n_nodes):
+        for j in range(n_nodes):
+            if PI_ij[j][i] != 0:
+                _Liouvillian += alpha * PI_ij[j][i] * lindblad_dissipator(L_ij(i,j,n_nodes))
+    return _Liouvillian
 
 if __name__=='__main__':
     print(L_ij(1,2, 4))
