@@ -15,7 +15,7 @@ if __name__=='__main__':
     Google = True
 
     n_nodes=39
-    A_ij = read_links('links.txt', n_nodes)
+    A_ij = read_links('links-sin-bots.txt', n_nodes)
 
     # Leemos correspondencia entre nombre y nodo del archivo de texto y lo guardamos en un diccionario
     with open('correspondencia.txt',encoding='latin-1', errors='replace') as corr:
@@ -58,16 +58,20 @@ if __name__=='__main__':
 
 
     #Pintamos la red
-    net = Network(directed=True, height="2000px", width="2000px", bgcolor='#222222', font_color='white')
+    net = Network(directed=True, height="100%", width='100%', bgcolor='#222222', font_color='white')
     net.barnes_hut()
         
-        
+
+    # Creo un array de la gente que no tiene links para no representarlos en el gráfico (inspección directa)
+    gente_sin_links = ['FisBot', 'FisBot_develop', 'Groovy', 'Manuel Vivas', 'Miguel Tajada']
+
     for i in range(n_nodes):
-        net.add_node(i, label=names[i+1], size=(10+PR[i]/max(PR)*40))
+        if names[i+1] not in gente_sin_links:
+            net.add_node(i, label=names[i+1], size=(10+PR[i]/max(PR)*40))
         
     for i in range(n_nodes):
         for j in range(n_nodes):
             if A_ij[i][j] != 0:
                 net.add_edge(i,j, value=A_ij[i][j])
-
+    
     net.show('ejemplo.html')
