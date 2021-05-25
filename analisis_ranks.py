@@ -95,3 +95,4 @@ plt.scatter(np.arange(41), Grado_out)
 # %%
 
 def linear(x,m,n):
+    pass
