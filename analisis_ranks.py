@@ -13,43 +13,50 @@ import pickle
 
 
 with open('datos.dat', 'rb') as file:
-    PR, QR, GR = pickle.load(file)
+    PR, QR, GR, names = pickle.load(file)
     
     plt.style.use('fast')
     
     p_PR = np.argsort(PR)[::-1]
     p_QR = np.argsort(QR)[::-1]
     p_GR = np.argsort(GR)[::-1]
-    
-with open('correspondencia.txt',encoding='latin-1', errors='replace') as corr:
-   names = {}
-   for line in corr:
-       node, name = line.split(maxsplit=1)
-       node = int(node)
-       name = name[0:-1] # El replace no me funcionaba, con esto sí que me quita el \n
-       names.update({node: name})
-       
        
 #for j,[pi,gi,qi] in enumerate(zip(p_PR, p_GR, p_QR)):
 #    #print(f'{j+1})', names[pi+1], f"{PR[pi]:.6}\t{GR[qi]:.6}\t{QR[gi]:.6}")
 #    print(f'{j+1})', names[pi+1],  names[gi+1], names[qi+1])
+
     
 #print(p_PR)
 #print(p_GR)
 #print(p_QR)
 
 
-plt.scatter(np.arange(0,41), p_QR-p_PR)
+#plt.scatter(np.arange(0,41), p_QR-p_PR)
+
+diff = np.zeros(41)
+for i, pg in enumerate(p_GR):
+    p_QR: np.ndarray
+    for j, pq in enumerate(p_QR):
+        if pg == pq:
+            diff[i] = j-i
+    
+fig1, ax1 = plt.subplots()
+
+ax1.scatter(np.arange(0,41), diff)
+
+# plt.scatter(np.arange(0,41), GR[p_GR])
+# plt.scatter(np.arange(0,41), QR[p_QR])
+
 #plt.scatter(np.arange(0,41), GR)
 #plt.scatter(np.arange(0,41), GR)
+ax1.grid()
+ax1.set_xlabel('Posición PR')
+ax1.set_ylabel('(Posición QR) - (Posición PR)')
 
-#plt.scatter(np.arange(0,40), p_QR)
-#plt.scatter(np.arange(0,40), p_GR)
-
-plt.xlabel('Posición PR')
-plt.ylabel('(Posición QR) - (Posición PR)')
+plt.show()
 
 
+#%%
 
 A_ij = read_links('links-sin-bots.txt', 41)
 TA_ij = transpuesta(A_ij)
