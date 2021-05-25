@@ -36,30 +36,33 @@ if __name__=='__main__':
     PI_ij = calculate_PI(A_ij)
     G_ij = calculate_G(PI_ij, 0.9)
     
-    #alpha_range = np.linspace(0,1,100)
-    alpha_range = [0.9]
+    alpha_range = np.linspace(0,1,51)
+    #alpha_range = [0.9]
     
-    for alpha in alpha_range:
-        print(f'Valor de alpha: {alpha}')
-        if Quantum:
-            time_in = time()*1e-6
-            H = Hamiltonian(G_ij)
+    styles = ['mean','max','min','norm','diff']
+    
+    for style in styles:
+        for alpha in alpha_range:
+            print(f'Valor de alpha: {alpha}')
+            if Quantum:
+                time_in = time()*1e-6
+                H = Hamiltonian(G_ij, style=style)
 
-            L = Liouvillian(alpha, G_ij, H)
+                L = Liouvillian(alpha, G_ij, H)
 
-            QR = np.zeros(n_nodes)
-            p = steadystate(L)
-            for i in range(n_nodes):
-                QR[i] = np.real(p[i,i])
-            print(f"Tiempo transcurrido: {(time()*1e-6-time_in)}ms")
+                QR = np.zeros(n_nodes)
+                p = steadystate(L)
+                for i in range(n_nodes):
+                    QR[i] = np.real(p[i,i])
+                print(f"Tiempo transcurrido: {(time()*1e-6-time_in)}ms")
 
-        if Classic:
-            PR = page_rank(A_ij, evolve, equal)
-            PR = np.array(PR)
+            if Classic:
+                PR = page_rank(A_ij, evolve, equal)
+                PR = np.array(PR)
 
-        if Google:
-            GR = page_rank(A_ij, evolveG, equal)
-            GR = np.array(GR)
+            if Google:
+                GR = page_rank(A_ij, evolveG, equal)
+                GR = np.array(GR)
 
-        with open(f'datos_{alpha:.02f}.dat', 'wb') as file:
-            pickle.dump([PR, QR, GR, names], file)
+            with open(f'{style}/datos_{alpha:.02f}.dat', 'wb') as file:
+                pickle.dump([PR, QR, GR, names], file)
