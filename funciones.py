@@ -183,13 +183,22 @@ def L_ij(i,j,N=8):
     
 
 
-def Hamiltonian(M_ij):
+def Hamiltonian(M_ij, style='mean'):
     N = len(M_ij)
     H=np.zeros((N,N))
+    
+    style_types = {
+        'mean': lambda x,y: (x+y)/2,
+        'max': lambda x,y: max(x,y),
+        'min': lambda x,y: min(x,y),
+        'norm': lambda x,y: np.sqrt(x*x + y*y),
+        'diff': lambda x,y: abs(x-y)
+    }
+    
     for i in range(N):
         for j in range(i,N):
             if M_ij[i][j]>0 or M_ij[j][i]>0:
-                H[i,j] = H[j,i]= (M_ij[i][j] + M_ij[j][i])/2
+                H[i,j] = H[j,i]= style_types[style](M_ij[i][j], M_ij[j][i])
     return Qobj(H)
 
 
