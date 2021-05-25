@@ -34,6 +34,7 @@ with open('datos.dat', 'rb') as file:
 #print(p_GR)
 #print(p_QR)
 
+#%%
 
 #plt.scatter(np.arange(0,41), p_QR-p_PR)
 
@@ -62,9 +63,10 @@ plt.show()
 
 #%%
 
+fig2, ax2 = plt.subplots()
+
 A_ij = read_links('links-sin-bots.txt', 41)
 TA_ij = transpuesta(A_ij)
-
 
 Grado_in = np.zeros(41)
 Grado_out = np.zeros(41)
@@ -76,8 +78,6 @@ for i, tai in enumerate(TA_ij):
 P_grado_in = Grado_in / sum(Grado_in)
 P_grado_out = Grado_out / sum(Grado_out)
 
-plt.show()
-#%%
 NNN = 4
 
 range_in = np.linspace(0,max(Grado_in)+0.001, NNN)
@@ -87,40 +87,67 @@ delta_out = range_out[1]-range_out[0]
 
 P_grado_in = np.zeros(NNN-1)
 P_grado_out = np.zeros(NNN-1)
+axin = np.zeros(NNN-1)
+axout = np.zeros(NNN-1)
+
+
+
+
 for gin, gout in zip(Grado_in, Grado_out):
     P_grado_in[int(np.floor(gin/delta_in))] += 1
     P_grado_out[int(np.floor(gout/delta_out))] += 1
-    
+    axin[int(np.floor(gin/delta_in))] += gin
+    axout[int(np.floor(gout/delta_out))] += gout
+
+axin /= P_grado_in
+axout /= P_grado_out
+
 P_grado_in /= sum(P_grado_in)
 P_grado_out /= sum(P_grado_out)
+
+in_range = range_in[:-1]+delta_in/2
+out_range = range_out[:-1]+delta_out/2
     
 xin = range_in[:-1]+delta_in/2
 xout = range_out[:-1]+delta_out/2
 
-plt.scatter(xin , P_grado_in)
-plt.scatter(xout , P_grado_out)
-plt.yscale('log')
-plt.xscale('log')
+
+ax2.scatter(axin , P_grado_in)
+ax2.scatter(axout , P_grado_out)
+ax2.set_yscale('log')
+ax2.set_xscale('log')
+
+ax2.set_xlabel('Grado de nodo')
+ax2.set_ylabel(r'$P_{k}$')
 
 
-# %%
 #plt.scatter(np.arange(41), Grado_in)
 #plt.scatter(np.arange(41), Grado_out)
-# %%
+
 
 def pow(x,m,n):
     return n*x**m
 
-popti,pcovi = curve_fit(pow,xin,P_grado_in)
-popto,pcovo = curve_fit(pow,xout,P_grado_out)
+popti,pcovi = curve_fit(pow,axin,P_grado_in)
+popto,pcovo = curve_fit(pow,axout,P_grado_out)
 
-plt.plot(xin,pow(xin,*popti),label='$P(k)\propto k^{'+f'{popti[0]:.2f}'+'}$')
-plt.plot(xout,pow(xout,*popto),label='$P(k)\propto k^{'+f'{popto[0]:.2f}'+'}$')
-plt.legend()
-plt.xlabel('k')
-plt.ylabel('P(k)')
-plt.title('Distribución de grado')
-plt.grid()
+ax2.plot(axin,pow(axin,*popti),label='$P(k)\propto k^{'+f'{popti[0]:.2f}'+'}$')
+ax2.plot(axout,pow(axout,*popto),label='$P(k)\propto k^{'+f'{popto[0]:.2f}'+'}$')
+ax2.legend()
+
+
+xticks = [100,200,300,400,600]
+ax2.set_xticks(xticks)
+ax2.set_xticklabels(["$%.1f$" % x for x in xticks])
+yticks = [0.05,0.1,0.2,0.3,0.5,0.7,1]
+ax2.set_yticks(yticks)
+ax2.set_yticklabels(["$%.2f$" % y for y in yticks])
+
+
+ax2.set_xlabel('k')
+ax2.set_ylabel('P(k)')
+ax2.set_title('Distribución de grado')
+ax2.grid()
 plt.show()
 
 FisCord = nx.DiGraph()
@@ -157,14 +184,14 @@ print("degree #nodes")
 for d in hist:
     print(f"{d:4} {hist[d]:6}")
 
-nx.draw(FisCord)
-plt.show()
+#nx.draw(FisCord)
+#plt.show()
 # %%
 
-plt.clf()
-fig2, ax2=plt.subplots()
+# fig4, ax4=plt.subplots()
+# a=list(hist.keys())
+# b=list(hist.items())
+# ax4.scatter(a,b)
 
-ax2.plot(hist.keys(),hist.items(),'.')
-
-plt.show()
+# plt.show()
 # %%
