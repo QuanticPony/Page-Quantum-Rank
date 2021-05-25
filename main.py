@@ -25,7 +25,7 @@ if __name__=='__main__':
     A_ij = read_links('links-sin-bots.txt', n_nodes)
 
     # Leemos correspondencia entre nombre y nodo del archivo de texto y lo guardamos en un diccionario
-    with open('correspondencia-sin-bots.txt',encoding='latin-1', errors='replace') as corr:
+    with open('correspondencia.txt',encoding='latin-1', errors='replace') as corr:
         names = {}
         for line in corr:
             node, name = line.split(maxsplit=1)
@@ -81,7 +81,7 @@ if __name__=='__main__':
     # netp = Network(directed=True, height="100%", width='100%', bgcolor='#222222', font_color='white')
     # netq = Network(directed=True, height="100%", width='100%', bgcolor='#222222', font_color='white')
     # netg = Network(directed=True, height="100%", width='100%', bgcolor='#222222', font_color='white')
-    # 
+    
     # netp.barnes_hut()
     # netq.barnes_hut()
     # netg.barnes_hut()
@@ -129,28 +129,3 @@ if __name__=='__main__':
 
     #pruebo con otra librería
 
-   #FisCord = nx.DiGraph()
-
-   #lista_Red = []
-
-   #for j,column in enumerate(A_ij):
-   #    for elto in column.keys():
-   #        lista_Red.append((names[elto+1], names[j+1], A_ij[j][elto]))
-
-   #FisCord.add_weighted_edges_from(lista_Red)
-
-   #
-
-   ## plt.subplot(121)
-   ## nx.draw(FisCord, with_labels=True, font_weight='bold')
-   ## plt.subplot(122)
-   ## nx.draw_shell(FisCord, nlist=[range(5, 10), range(5)], with_labels=True, font_weight='bold')
-
-   ## plt.show()
-
-   #FC_clustering=nx.clustering(FisCord)
-   #cluster=sum(FC_clustering.values())/len(FC_clustering.values())
-   #print(f"clustering: {cluster:.4}")
-
-   #pearson=nx.degree_pearson_correlation_coefficient(FisCord)
-   #print(f"asortatividad (r): {pearson:.4}")
