@@ -14,7 +14,7 @@ def convert_to_list(b_ij: np.ndarray):
     B_ij = [defaultdict(cero) for _ in range(n_nodes)]
     for i in range(n_nodes):
         for j in range(n_nodes):
-            B_ij[i].update({j : B_ij[i][j]})
+            B_ij[i].update({j : b_ij[i][j]})
     return B_ij
 
 def convert_to_matrix(B_ij):
@@ -147,8 +147,8 @@ def print_rank(P, names=None):
     print('Pagerank:')
     t = np.argsort(P)[::-1]
     if names is not None:
-        for j,i in enumerate(t):
-            print(f'{j+1})', names[i+1], f"{P[i]:.6}")
+        for j,i in enumerate(names.keys()):
+            print(f'{j+1})', names[i], f"{P[t[j]]:.4}")
     else:
         for j,i in enumerate(t):
             print(f'{j+1})', i+1, f"{P[i]:.6}")

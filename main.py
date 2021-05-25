@@ -7,6 +7,9 @@ from funciones import *
 
 from pyvis.network import Network
 
+import networkx as nx
+import matplotlib.pyplot as plt
+
 
 if __name__=='__main__':
 
@@ -18,7 +21,7 @@ if __name__=='__main__':
     A_ij = read_links('links-sin-bots.txt', n_nodes)
 
     # Leemos correspondencia entre nombre y nodo del archivo de texto y lo guardamos en un diccionario
-    with open('correspondencia.txt',encoding='latin-1', errors='replace') as corr:
+    with open('correspondencia-sin-bots.txt',encoding='latin-1', errors='replace') as corr:
         names = {}
         for line in corr:
             node, name = line.split(maxsplit=1)
@@ -54,24 +57,52 @@ if __name__=='__main__':
     #? Esto no sé que es, pero lo dejo por si acaso
     # page_rank(A_ij, evolve_T, equal, _transpuesta=True)
 
-    print_rank(PR, names=names)
+    #print_rank(PR, names=names)
 
 
     #Pintamos la red
-    net = Network(directed=True, height="100%", width='100%', bgcolor='#222222', font_color='white')
-    net.barnes_hut()
+    # net = Network(directed=True, height="100%", width='100%', bgcolor='#222222', font_color='white')
+    # net.barnes_hut()
         
 
-    # Creo un array de la gente que no tiene links para no representarlos en el gráfico (inspección directa)
-    gente_sin_links = ['FisBot', 'FisBot_develop', 'Groovy', 'Manuel Vivas', 'Miguel Tajada']
+    # # Creo un array de la gente que no tiene links para no representarlos en el gráfico (inspección directa)
+    # gente_sin_links = ['FisBot', 'FisBot_develop', 'Groovy', 'Manuel Vivas', 'Miguel Tajada']
 
-    for i in range(n_nodes):
-        if names[i+1] not in gente_sin_links:
-            net.add_node(i, label=names[i+1], size=(10+PR[i]/max(PR)*40))
+    # for i in range(n_nodes):
+    #     if names[i+1] not in gente_sin_links:
+    #         net.add_node(i, label=names[i+1], size=(10+PR[i]/max(PR)*40))
         
-    for i in range(n_nodes):
-        for j in range(n_nodes):
-            if A_ij[i][j] != 0:
-                net.add_edge(i,j, value=A_ij[i][j])
+    # for i in range(n_nodes):
+    #     for j in range(n_nodes):
+    #         if A_ij[i][j] != 0:
+    #             net.add_edge(i,j, value=A_ij[i][j])
     
-    net.show('ejemplo.html')
+    # net.show('ejemplo.html')
+
+    #pruebo con otra librería
+
+    FisCord = nx.DiGraph()
+
+    lista_Red = []
+
+    for j,column in enumerate(A_ij):
+        for elto in column.keys():
+            lista_Red.append((names[elto+1], names[j+1], A_ij[j][elto]))
+
+    FisCord.add_weighted_edges_from(lista_Red)
+
+   
+
+    # plt.subplot(121)
+    # nx.draw(FisCord, with_labels=True, font_weight='bold')
+    # plt.subplot(122)
+    # nx.draw_shell(FisCord, nlist=[range(5, 10), range(5)], with_labels=True, font_weight='bold')
+
+    # plt.show()
+
+    FC_clustering=nx.clustering(FisCord)
+    cluster=sum(FC_clustering.values())/len(FC_clustering.values())
+    print(f"clustering: {cluster:.4}")
+
+    pearson=nx.degree_pearson_correlation_coefficient(FisCord)
+    print(f"asortatividad (r): {pearson:.4}")
