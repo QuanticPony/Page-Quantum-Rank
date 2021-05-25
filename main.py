@@ -20,7 +20,7 @@ if __name__=='__main__':
     Quantum = True
     Classic = True
     Google = True
-
+    
     n_nodes=41
     A_ij = read_links('links-sin-bots.txt', n_nodes)
 
@@ -36,26 +36,8 @@ if __name__=='__main__':
     PI_ij = calculate_PI(A_ij)
     G_ij = calculate_G(PI_ij, 0.9)
     
-    if Quantum:
-        time_in = time()*1e-6
-        H = Hamiltonian(G_ij)
-        
-        L = Liouvillian(0.9, G_ij, H)
-        
-        QR = np.zeros(n_nodes)
-        p = steadystate(L)
-        for i in range(n_nodes):
-            QR[i] = np.real(p[i,i])
-        
-        print(f"Tiempo transcurrido: {(time()*1e-6-time_in)}ms")
-
-    if Classic:
-        PR = page_rank(A_ij, evolve, equal)
-        PR = np.array(PR)
-
-    if Google:
-        GR = page_rank(A_ij, evolveG, equal)
-        GR = np.array(GR)
+    alpha_range = np.linspace(0,1,51)
+    #alpha_range = [0.9]
     
 #%%  
     #plt.style.use('fast')

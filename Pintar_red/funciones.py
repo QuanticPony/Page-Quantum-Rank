@@ -1,5 +1,4 @@
 from collections import defaultdict
-from inspect import Attribute
 from time import time_ns as time
 
 import numpy as np
@@ -15,7 +14,7 @@ def convert_to_list(b_ij: np.ndarray):
     B_ij = [defaultdict(cero) for _ in range(n_nodes)]
     for i in range(n_nodes):
         for j in range(n_nodes):
-            B_ij[i].update({j : b_ij[i][j]})
+            B_ij[i].update({j : B_ij[i][j]})
     return B_ij
 
 def convert_to_matrix(B_ij):
@@ -31,7 +30,7 @@ def convert_to_matrix(B_ij):
 
 def print_matrix(b_ij):
     for j in range(len(b_ij)):
-        print(' '.join([f"{b_ij[i][j]:.2f}" for i in range(len(b_ij))]))
+        print(' '.join([f"{b_ij[i][j]:.2f}" for i in range(8)]))
 
 def read_links(filename, n_nodes):
     '''
@@ -148,8 +147,8 @@ def print_rank(P, names=None):
     print('Pagerank:')
     t = np.argsort(P)[::-1]
     if names is not None:
-        for j,i in enumerate(names.keys()):
-            print(f'{j+1})', names[i], f"{P[t[j]]:.4}")
+        for j,i in enumerate(t):
+            print(f'{j+1})', names[i+1], f"{P[i]:.6}")
     else:
         for j,i in enumerate(t):
             print(f'{j+1})', i+1, f"{P[i]:.6}")
@@ -183,22 +182,13 @@ def L_ij(i,j,N=8):
     
 
 
-def Hamiltonian(M_ij, style='mean'):
+def Hamiltonian(M_ij):
     N = len(M_ij)
     H=np.zeros((N,N))
-    
-    style_types = {
-        'mean': lambda x,y: (x+y)/2,
-        'max': lambda x,y: max(x,y),
-        'min': lambda x,y: min(x,y),
-        'norm': lambda x,y: np.sqrt(x*x + y*y),
-        'diff': lambda x,y: abs(x-y)
-    }
-    
     for i in range(N):
         for j in range(i,N):
             if M_ij[i][j]>0 or M_ij[j][i]>0:
-                H[i,j] = H[j,i]= style_types[style](M_ij[i][j], M_ij[j][i])
+                H[i,j] = H[j,i]= 1
     return Qobj(H)
 
 
@@ -207,7 +197,8 @@ def Liouvillian(alpha, PI_ij, H):
     _Liouvillian = -1j*(1-alpha)*(spre(H)-spost(H))
     for i in range(n_nodes):
         for j in range(n_nodes):
-            _Liouvillian += alpha * PI_ij[j][i] * lindblad_dissipator(L_ij(i,j,n_nodes))
+            if PI_ij[j][i] != 0:
+                _Liouvillian += alpha * PI_ij[j][i] * lindblad_dissipator(L_ij(i,j,n_nodes))
     return _Liouvillian
 
 if __name__=='__main__':
