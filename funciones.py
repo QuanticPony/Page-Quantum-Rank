@@ -1,4 +1,5 @@
 from collections import defaultdict
+from inspect import Attribute
 from time import time_ns as time
 
 import numpy as np
@@ -30,7 +31,7 @@ def convert_to_matrix(B_ij):
 
 def print_matrix(b_ij):
     for j in range(len(b_ij)):
-        print(' '.join([f"{b_ij[i][j]:.2f}" for i in range(8)]))
+        print(' '.join([f"{b_ij[i][j]:.2f}" for i in range(len(b_ij))]))
 
 def read_links(filename, n_nodes):
     '''
@@ -188,7 +189,7 @@ def Hamiltonian(M_ij):
     for i in range(N):
         for j in range(i,N):
             if M_ij[i][j]>0 or M_ij[j][i]>0:
-                H[i,j] = H[j,i]= 1
+                H[i,j] = H[j,i]= (M_ij[i][j] + M_ij[j][i])/2
     return Qobj(H)
 
 
@@ -197,8 +198,7 @@ def Liouvillian(alpha, PI_ij, H):
     _Liouvillian = -1j*(1-alpha)*(spre(H)-spost(H))
     for i in range(n_nodes):
         for j in range(n_nodes):
-            if PI_ij[j][i] != 0:
-                _Liouvillian += alpha * PI_ij[j][i] * lindblad_dissipator(L_ij(i,j,n_nodes))
+            _Liouvillian += alpha * PI_ij[j][i] * lindblad_dissipator(L_ij(i,j,n_nodes))
     return _Liouvillian
 
 if __name__=='__main__':

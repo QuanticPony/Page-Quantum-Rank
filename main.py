@@ -7,14 +7,17 @@ from funciones import *
 
 from pyvis.network import Network
 
+from matplotlib import pyplot as plt
+
+import pickle
 
 if __name__=='__main__':
 
-    Quantum = False
-    Classic = False
+    Quantum = True
+    Classic = True
     Google = True
 
-    n_nodes=39
+    n_nodes=41
     A_ij = read_links('links-sin-bots.txt', n_nodes)
 
     # Leemos correspondencia entre nombre y nodo del archivo de texto y lo guardamos en un diccionario
@@ -27,51 +30,78 @@ if __name__=='__main__':
             names.update({node: name})
     
     PI_ij = calculate_PI(A_ij)
-    G_ij = calculate_G(PI_ij)
+    G_ij = calculate_G(PI_ij, 0.9)
     
     if Quantum:
-        H = Hamiltonian(PI_ij)
+        time_in = time()*1e-6
+        H = Hamiltonian(G_ij)
         
-        L = Liouvillian(0.8, G_ij, H)
+        L = Liouvillian(0.9, G_ij, H)
         
-        PR = np.zeros(n_nodes)
+        QR = np.zeros(n_nodes)
         p = steadystate(L)
         for i in range(n_nodes):
-            PR[i] = np.real(p[i,i])
+            QR[i] = np.real(p[i,i])
+        
+        print(f"Tiempo transcurrido: {(time()*1e-6-time_in)}ms")
 
-        print('Algoritmo cuántico')
     
     
     if Classic:
         PR = page_rank(A_ij, evolve, equal)
-        print('Algoritmo clásico')
+        PR = np.array(PR)
 
 
     if Google:
-        PR = page_rank(A_ij, evolveG, equal)
-        print('Algoritmo de Google')
+        GR = page_rank(A_ij, evolveG, equal)
+        GR = np.array(GR)
+    
+#%%  
+    plt.style.use('fast')
+    
+    p_PR = np.argsort(PR)[::-1]
+    p_QR = np.argsort(QR)[::-1]
+    p_GR = np.argsort(GR)[::-1]
+    
+    plt.scatter(p_GR, p_QR-p_GR)
+    #plt.scatter(np.arange(0,40), p_QR)
+    #plt.scatter(np.arange(0,40), p_GR)
+    plt.xlabel('Posición PR')
+    plt.ylabel('(Posición QR) - (Posición PR)')
 
-    #? Esto no sé que es, pero lo dejo por si acaso
-    # page_rank(A_ij, evolve_T, equal, _transpuesta=True)
+    with open('datos.dat', 'wb') as file:
+        pickle.dump([PR, QR, GR], file)
 
-    print_rank(PR, names=names)
+    #print_rank(PR, names=names)
 
 
-    #Pintamos la red
-    net = Network(directed=True, height="100%", width='100%', bgcolor='#222222', font_color='white')
-    net.barnes_hut()
-        
+   #Pintamos la red
+    netp = Network(directed=True, height="100%", width='100%', bgcolor='#222222', font_color='white')
+    netq = Network(directed=True, height="100%", width='100%', bgcolor='#222222', font_color='white')
+    netg = Network(directed=True, height="100%", width='100%', bgcolor='#222222', font_color='white')
+    
+    netp.barnes_hut()
+    netq.barnes_hut()
+    netg.barnes_hut()
 
-    # Creo un array de la gente que no tiene links para no representarlos en el gráfico (inspección directa)
-    gente_sin_links = ['FisBot', 'FisBot_develop', 'Groovy', 'Manuel Vivas', 'Miguel Tajada']
+
+    ## Creo un array de la gente que no tiene links para no representarlos en el gráfico (inspección directa)
+    gente_sin_links = []#'FisBot', 'FisBot_develop', 'Groovy', 'Manuel Vivas', 'Miguel Tajada']
 
     for i in range(n_nodes):
         if names[i+1] not in gente_sin_links:
-            net.add_node(i, label=names[i+1], size=(10+PR[i]/max(PR)*40))
-        
+            netp.add_node(i, label=names[i+1], size=(10+PR[i]/max(PR)*40))
+            netq.add_node(i, label=names[i+1], size=(10+QR[i]/max(QR)*40))
+            netg.add_node(i, label=names[i+1], size=(10+GR[i]/max(GR)*40))
+
     for i in range(n_nodes):
         for j in range(n_nodes):
             if A_ij[i][j] != 0:
-                net.add_edge(i,j, value=A_ij[i][j])
+                netp.add_edge(i,j, value=A_ij[i][j])
+                netq.add_edge(i,j, value=A_ij[i][j])
+                netg.add_edge(i,j, value=A_ij[i][j])
     
-    net.show('ejemplo.html')
+    netp.show('net_p.html')
+    netq.show('net_q.html')
+    netg.show('net_g.html')
+# %%
