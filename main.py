@@ -16,16 +16,12 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 if __name__=='__main__':
-
-    Quantum = True
-    Classic = True
-    Google = True
     
-    n_nodes=41
-    A_ij = read_links('links-sin-bots.txt', n_nodes)
+    n_nodes=40
+    A_ij = read_links('links-sin-Leyre.txt', n_nodes)
 
     # Leemos correspondencia entre nombre y nodo del archivo de texto y lo guardamos en un diccionario
-    with open('correspondencia.txt',encoding='latin-1', errors='replace') as corr:
+    with open('correspondencia_sin_Leyre.txt', encoding='UTF-8', errors='replace') as corr:
         names = {}
         for line in corr:
             node, name = line.split(maxsplit=1)
@@ -36,37 +32,33 @@ if __name__=='__main__':
     PI_ij = calculate_PI(A_ij)
     G_ij = calculate_G(PI_ij, 0.9)
     
-    alpha_range = np.linspace(0.1,1,3)
-    alpha_range = [0.8]
-    for style in ['mean']:#,'max','min','norm','diff']:
+    alpha_range = np.linspace(0.1,1,20)
+    alpha_range = [1]
+    for style in ['mean']:#'max','min','norm','diff']:
         H = Hamiltonian(G_ij, style=style)
-        for alpha in alpha_range:
-            print(f'Valor de alpha: {alpha}')
-            if Quantum:
-                time_in = time()*1e-6
+        
+        GR = page_rank(A_ij, evolveG, equal)
+        GR = np.array(GR)
+        PR = page_rank(A_ij, evolve, equal)
+        PR = np.array(PR)
                 
+        for alpha in alpha_range:
+            time_in = time()*1e-6
+            print(f'Valor de alpha: {alpha:.2f}')
+            
+            L = Liouvillian(alpha, G_ij, H)
     
-                L = Liouvillian(alpha, G_ij, H)
+            QR = np.zeros(n_nodes)
+            p = steadystate(L)
+            for i in range(n_nodes):
+                QR[i] = np.real(p[i,i])
+            print(f"Tiempo transcurrido: {(time()*1e-6-time_in)}ms")
     
-                QR = np.zeros(n_nodes)
-                p = steadystate(L)
-                for i in range(n_nodes):
-                    QR[i] = np.real(p[i,i])
-                print(f"Tiempo transcurrido: {(time()*1e-6-time_in)}ms")
-    
-            if Classic:
-                PR = page_rank(A_ij, evolve, equal)
-                PR = np.array(PR)
-    
-            if Google:
-                GR = page_rank(A_ij, evolveG, equal)
-                GR = np.array(GR)
-    
-            print_rank(GR, names=names)
-            print_rank(QR, names=names)
-    
-            #with open(f'h/{style}/datos_{alpha:.02f}.dat', 'wb') as file:
-            #    pickle.dump([PR, QR, GR, names], file)
+            with open(f'h/{style}/datos_{alpha:.02f}.dat', 'wb') as file:
+                pickle.dump([PR, QR, GR, names], file)
+        
+        print_rank(GR, names=names)
+        print_rank(QR, names=names)
         
 #%%  
     #plt.style.use('fast')
@@ -81,8 +73,8 @@ if __name__=='__main__':
     #plt.xlabel('Posición PR')
     #plt.ylabel('(Posición QR) - (Posición PR)')
 
-    with open('datos.dat', 'wb') as file:
-        pickle.dump([PR, QR, GR, names], file)
+    #with open('datos.dat', 'wb') as file:
+    #    pickle.dump([PR, QR, GR, names], file)
 
     #print_rank(PR, names=names)
 

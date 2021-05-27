@@ -18,12 +18,12 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
-N_samples = 3
+N_samples = 20
 alpha_range = np.linspace(0.1,1,N_samples)
 
 styles = ['mean','max','min','norm','diff']
 
-N_nodos = 41
+N_nodos = 40
 
 #%%
 normal_rank = {}

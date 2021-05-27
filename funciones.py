@@ -119,11 +119,11 @@ def evolve_T(P, PI_ji,  **kargs):
             Pnew[i] += P[j] * p
     return Pnew     
 
-def evolveG(P, G_ij, q=0.9):
+def evolveG(P, pi_ij, q=0.9):
     '''
     Evolves the system a temporal discrete step using the Google matrix
     '''
-    F = (1-q)/(len(P)-1)
+    G_ij = calculate_G(pi_ij, q=q)
     Pnew=np.zeros(len(P))
     for i in range(len(P)):
         for j in range(len(P)):
@@ -219,13 +219,11 @@ def Liouvillian(alpha, PI_ij, H):
 
 if __name__=='__main__':
     A_ij = np.zeros([2,2])
-    A_ij[0,1] = 2
+    A_ij[0,1] = 4
     A_ij[1,0] = 5
     A_ij = convert_to_list(A_ij)
     g_ij = calculate_G(A_ij)
-    #print_matrix(g_ij)
-    print(Hamiltonian(g_ij, style='mean'))
-    print(Hamiltonian(g_ij, style='max'))
-    print(Hamiltonian(g_ij, style='min'))
-    print(Hamiltonian(g_ij, style='norm'))
-    print(Hamiltonian(g_ij, style='diff'))
+    print_matrix(g_ij)
+    #for s in ['mean','max','min','norm','diff']:
+    #    h = Hamiltonian(g_ij, style=s)
+    #    print(s, -h[1,0]*h[0,1])
