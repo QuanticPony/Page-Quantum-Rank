@@ -37,7 +37,7 @@ for style in styles:
     google_rank.update({style:[]})
     
     for alpha in alpha_range:
-        with open(f'h/{style}/datos_{alpha:.02f}.dat', 'rb') as file:
+        with open(f'{style}/datos_{alpha:.02f}.dat', 'rb') as file:
             PR, QR, GR, names = pickle.load(file)
         normal_rank[style].append(PR)
         quantum_rank[style].append(QR)

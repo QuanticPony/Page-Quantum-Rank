@@ -18,10 +18,10 @@ import matplotlib.pyplot as plt
 if __name__=='__main__':
     
     n_nodes=40
-    A_ij = read_links('links-sin-Leyre.txt', n_nodes)
+    A_ij = read_links('links.txt', n_nodes)
 
     # Leemos correspondencia entre nombre y nodo del archivo de texto y lo guardamos en un diccionario
-    with open('correspondencia_sin_Leyre.txt', encoding='UTF-8', errors='replace') as corr:
+    with open('correspondencia.txt', encoding='UTF-8', errors='replace') as corr:
         names = {}
         for line in corr:
             node, name = line.split(maxsplit=1)
@@ -54,7 +54,7 @@ if __name__=='__main__':
                 QR[i] = np.real(p[i,i])
             print(f"Tiempo transcurrido: {(time()*1e-6-time_in)}ms")
     
-            with open(f'h/{style}/datos_{alpha:.02f}.dat', 'wb') as file:
+            with open(f'{style}/datos_{alpha:.02f}.dat', 'wb') as file:
                 pickle.dump([PR, QR, GR, names], file)
         
         print_rank(GR, names=names)

@@ -71,7 +71,7 @@ plt.show()
 
 fig2, ax2 = plt.subplots()
 
-A_ij = read_links('links-sin-bots.txt', 41)
+A_ij = read_links('links.txt', 41)
 TA_ij = transpuesta(A_ij)
 
 Grado_in = np.zeros(41)
