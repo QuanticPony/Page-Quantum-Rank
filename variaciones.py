@@ -18,8 +18,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
-N_samples = 51
-alpha_range = np.linspace(0,1,N_samples)
+N_samples = 3
+alpha_range = np.linspace(0.1,1,N_samples)
+
 styles = ['mean','max','min','norm','diff']
 
 N_nodos = 41
@@ -36,7 +37,7 @@ for style in styles:
     google_rank.update({style:[]})
     
     for alpha in alpha_range:
-        with open(f'{style}/datos_{alpha:.02f}.dat', 'rb') as file:
+        with open(f'h/{style}/datos_{alpha:.02f}.dat', 'rb') as file:
             PR, QR, GR, names = pickle.load(file)
         normal_rank[style].append(PR)
         quantum_rank[style].append(QR)
@@ -45,7 +46,11 @@ for style in styles:
 #%%
         
 serie = np.zeros(N_samples)  
-
+params = {"ytick.color" : "w",
+          "xtick.color" : "w",
+          "axes.labelcolor" : "w",
+          "axes.edgecolor" : "w"}
+plt.rcParams.update(params)
 
 for style in styles:
     fig, ax = plt.subplots()
@@ -60,7 +65,7 @@ for style in styles:
         'diff': r'$|g_{ij}-g_{ji}|$',
     }
     
-    ax.set_title(f"Hamiltonian: {style_types[style]}")
+    ax.set_title(f"Hamiltonian: {style_types[style]}", color="w")
     ax.set_xlabel(r'$\alpha$')
     ax.set_ylabel('Quantum Rank')
     
@@ -78,5 +83,4 @@ for style in styles:
         for j, alpha in enumerate(alpha_range):
             serie[j] = quantum_rank[style][j][i]
         ax.plot(alpha_range, serie, color=color(normal_rank[style][0][i]))
-        
-plt.show()
+    fig.savefig(f'{style}.png', transparent=True)

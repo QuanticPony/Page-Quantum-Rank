@@ -11,7 +11,7 @@ def convert_to_list(b_ij: np.ndarray):
     '''
     Given a matrix `b_ij` it returns a list type array
     '''
-    n_nodes = b_ij.size
+    n_nodes = b_ij.shape[0]
     B_ij = [defaultdict(cero) for _ in range(n_nodes)]
     for i in range(n_nodes):
         for j in range(n_nodes):
@@ -148,8 +148,8 @@ def print_rank(P, names=None):
     print('Pagerank:')
     t = np.argsort(P)[::-1]
     if names is not None:
-        for j,i in enumerate(names.keys()):
-            print(f'{j+1})', names[i], f"{P[t[j]]:.4}")
+        for j,i in enumerate(t):
+            print(f'{j+1})', names[i+1], f"{P[i]:.6}")
     else:
         for j,i in enumerate(t):
             print(f'{j+1})', i+1, f"{P[i]:.6}")
@@ -199,7 +199,14 @@ def Hamiltonian(M_ij, style='mean'):
         for j in range(i,N):
             if M_ij[i][j]>0 or M_ij[j][i]>0:
                 H[i,j] = H[j,i]= style_types[style](M_ij[i][j], M_ij[j][i])
+        
+    #for i in range(N):
+    #    suma = sum(H[i,:])
+    #    H[i,:] /= suma
+    #    H[:,i] /= suma
     return Qobj(H)
+
+    #! .unit quizá funciona. Comprobarlo 
 
 
 def Liouvillian(alpha, PI_ij, H):
@@ -211,4 +218,14 @@ def Liouvillian(alpha, PI_ij, H):
     return _Liouvillian
 
 if __name__=='__main__':
-    print(L_ij(1,2, 4))
+    A_ij = np.zeros([2,2])
+    A_ij[0,1] = 2
+    A_ij[1,0] = 5
+    A_ij = convert_to_list(A_ij)
+    g_ij = calculate_G(A_ij)
+    #print_matrix(g_ij)
+    print(Hamiltonian(g_ij, style='mean'))
+    print(Hamiltonian(g_ij, style='max'))
+    print(Hamiltonian(g_ij, style='min'))
+    print(Hamiltonian(g_ij, style='norm'))
+    print(Hamiltonian(g_ij, style='diff'))

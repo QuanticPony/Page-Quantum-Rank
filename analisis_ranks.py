@@ -34,6 +34,12 @@ with open('datos.dat', 'rb') as file:
 #print(p_GR)
 #print(p_QR)
 
+params = {"ytick.color" : "w",
+          "xtick.color" : "w",
+          "axes.labelcolor" : "w",
+          "axes.edgecolor" : "w"}
+plt.rcParams.update(params)
+
 #%%
 
 #plt.scatter(np.arange(0,41), p_QR-p_PR)
@@ -100,6 +106,8 @@ axout = np.zeros(NNN-1)
 #     plt.show()
 
 def do(g, title):
+    fig, ax = plt.subplots()
+    
     hist, arange = np.histogram(g, 20)
     arange += arange[1]*0.5
 
@@ -117,15 +125,14 @@ def do(g, title):
     popti,pcovi = curve_fit(_pow, arange_only, hist_only)
     # plt.xscale('log')
     # plt.yscale('log')
-    plt.ylim(0,0.8)
-    plt.xlabel('Grado de nodo')
-    plt.ylabel(r'$P_{k}$')
-    plt.title(title)
-    plt.bar(arange_only, hist_only, arange[1])
-    plt.plot(np.linspace(20,900,50), _pow(np.linspace(0,900,50), *popti), label='$P(k)\propto k^{'+f'{popti[0]:.2f}'+'}$', c='r')
-    plt.legend()
-    plt.grid()
-    plt.show()
+    ax.set_ylim(0,0.8)
+    ax.set_xlabel('Grado de nodo')
+    ax.set_ylabel(r'$P_{k}$')
+    ax.set_title(title, color="w")
+    ax.bar(arange_only, hist_only, arange[1])
+    ax.plot(np.linspace(20,900,50), _pow(np.linspace(0,900,50), *popti), label='$P(k)\propto k^{'+f'{popti[0]:.2f}'+'}$', c='r')
+    ax.legend()
+    fig.savefig(f'{title}.png', transparent=True)
 
 
 do(Grado_in, "Distribución de grado 'in'")

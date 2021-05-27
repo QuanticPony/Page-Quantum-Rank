@@ -36,9 +36,38 @@ if __name__=='__main__':
     PI_ij = calculate_PI(A_ij)
     G_ij = calculate_G(PI_ij, 0.9)
     
-    alpha_range = np.linspace(0,1,51)
-    #alpha_range = [0.9]
+    alpha_range = np.linspace(0.1,1,3)
+    alpha_range = [0.8]
+    for style in ['mean']:#,'max','min','norm','diff']:
+        H = Hamiltonian(G_ij, style=style)
+        for alpha in alpha_range:
+            print(f'Valor de alpha: {alpha}')
+            if Quantum:
+                time_in = time()*1e-6
+                
     
+                L = Liouvillian(alpha, G_ij, H)
+    
+                QR = np.zeros(n_nodes)
+                p = steadystate(L)
+                for i in range(n_nodes):
+                    QR[i] = np.real(p[i,i])
+                print(f"Tiempo transcurrido: {(time()*1e-6-time_in)}ms")
+    
+            if Classic:
+                PR = page_rank(A_ij, evolve, equal)
+                PR = np.array(PR)
+    
+            if Google:
+                GR = page_rank(A_ij, evolveG, equal)
+                GR = np.array(GR)
+    
+            print_rank(GR, names=names)
+            print_rank(QR, names=names)
+    
+            #with open(f'h/{style}/datos_{alpha:.02f}.dat', 'wb') as file:
+            #    pickle.dump([PR, QR, GR, names], file)
+        
 #%%  
     #plt.style.use('fast')
     #
