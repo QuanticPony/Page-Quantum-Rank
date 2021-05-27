@@ -1,4 +1,3 @@
-#%%
 import numpy as np
 
 from qutip.steadystate import steadystate
@@ -17,7 +16,7 @@ import matplotlib.pyplot as plt
 
 if __name__=='__main__':
     
-    n_nodes=40
+    n_nodes=41
     A_ij = read_links('links.txt', n_nodes)
 
     # Leemos correspondencia entre nombre y nodo del archivo de texto y lo guardamos en un diccionario
@@ -33,7 +32,7 @@ if __name__=='__main__':
     G_ij = calculate_G(PI_ij, 0.9)
     
     alpha_range = np.linspace(0.1,1,20)
-    alpha_range = [1]
+    alpha_range = [0.9]
     for style in ['mean']:#'max','min','norm','diff']:
         H = Hamiltonian(G_ij, style=style)
         
@@ -57,27 +56,11 @@ if __name__=='__main__':
             with open(f'{style}/datos_{alpha:.02f}.dat', 'wb') as file:
                 pickle.dump([PR, QR, GR, names], file)
         
-        print_rank(GR, names=names)
-        print_rank(QR, names=names)
-        
-#%%  
-    #plt.style.use('fast')
-    #
-    #p_PR = np.argsort(PR)[::-1]
-    #p_QR = np.argsort(QR)[::-1]
-    #p_GR = np.argsort(GR)[::-1]
-    #
-    #plt.scatter(p_GR, p_QR-p_GR)
-    ##plt.scatter(np.arange(0,40), p_QR)
-    ##plt.scatter(np.arange(0,40), p_GR)
-    #plt.xlabel('Posición PR')
-    #plt.ylabel('(Posición QR) - (Posición PR)')
-
-    #with open('datos.dat', 'wb') as file:
-    #    pickle.dump([PR, QR, GR, names], file)
-
-    #print_rank(PR, names=names)
-
+        # print_rank(GR, names=names)
+        # print_rank(QR, names=names)
+    if len(alpha_range)==1:
+        with open('datos.dat', 'wb') as file:
+            pickle.dump([PR, QR, GR, names], file)
 
 
 #    Pintamos la red

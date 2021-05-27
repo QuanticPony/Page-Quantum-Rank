@@ -40,11 +40,13 @@ params = {"ytick.color" : "w",
           "axes.edgecolor" : "w"}
 plt.rcParams.update(params)
 
+
+N_nodos = 40
 #%%
 
-#plt.scatter(np.arange(0,41), p_QR-p_PR)
+#plt.scatter(np.arange(0,N_nodos), p_QR-p_PR)
 
-diff = np.zeros(41)
+diff = np.zeros(N_nodos)
 for i, pg in enumerate(p_GR):
     p_QR: np.ndarray
     for j, pq in enumerate(p_QR):
@@ -53,13 +55,13 @@ for i, pg in enumerate(p_GR):
     
 fig1, ax1 = plt.subplots()
 
-ax1.scatter(np.arange(0,41), diff)
+ax1.scatter(np.arange(0,N_nodos), diff)
 
-# plt.scatter(np.arange(0,41), GR[p_GR])
-# plt.scatter(np.arange(0,41), QR[p_QR])
+# plt.scatter(np.arange(0,N_nodos), GR[p_GR])
+# plt.scatter(np.arange(0,N_nodos), QR[p_QR])
 
-#plt.scatter(np.arange(0,41), GR)
-#plt.scatter(np.arange(0,41), GR)
+#plt.scatter(np.arange(0,N_nodos), GR)
+#plt.scatter(np.arange(0,N_nodos), GR)
 ax1.grid()
 ax1.set_xlabel('Posición PR')
 ax1.set_ylabel('(Posición QR) - (Posición PR)')
@@ -71,11 +73,11 @@ plt.show()
 
 fig2, ax2 = plt.subplots()
 
-A_ij = read_links('links.txt', 41)
+A_ij = read_links('links.txt', N_nodos)
 TA_ij = transpuesta(A_ij)
 
-Grado_in = np.zeros(41)
-Grado_out = np.zeros(41)
+Grado_in = np.zeros(N_nodos)
+Grado_out = np.zeros(N_nodos)
 for i, ai in enumerate(A_ij):
     Grado_out[i] = sum(ai.values())
 for i, tai in enumerate(TA_ij):
@@ -167,8 +169,8 @@ do(Grado_out, "Distribución de grado 'out'")
 # ax2.set_ylabel(r'$P_{k}$')
 
 
-# #plt.scatter(np.arange(41), Grado_in)
-# #plt.scatter(np.arange(41), Grado_out)
+# #plt.scatter(np.arange(N_nodos), Grado_in)
+# #plt.scatter(np.arange(N_nodos), Grado_out)
 
 
 # def _pow(x,m,n):
@@ -182,7 +184,7 @@ do(Grado_out, "Distribución de grado 'out'")
 # ax2.legend()
 
 
-# xticks = [100,200,300,400,600]
+# xticks = [100,200,300,N_nodos0,600]
 # ax2.set_xticks(xticks)
 # ax2.set_xticklabels(["$%.1f$" % x for x in xticks])
 # yticks = [0.05,0.1,0.2,0.3,0.5,0.7,1]
