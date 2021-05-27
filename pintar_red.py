@@ -1,4 +1,3 @@
-#%%
 import numpy as np
 
 from qutip.steadystate import steadystate
@@ -10,15 +9,15 @@ from pyvis.network import Network
 
 if __name__=='__main__':
 
-    Quantum = False
+    Quantum = True
     Classic = False
-    Google = True
+    Google = False
 
-    n_nodes=41
-    A_ij = read_links('links-sin-bots(1).txt', n_nodes)
+    n_nodes=40
+    A_ij = read_links('links-sin-Leyre.txt', n_nodes)
 
     # Leemos correspondencia entre nombre y nodo del archivo de texto y lo guardamos en un diccionario
-    with open('correspondencia_final.txt',encoding='latin-1', errors='replace') as corr:
+    with open('correspondencia_sin_Leyre.txt',encoding='UTF-8', errors='replace') as corr:
         names = {}
         for line in corr:
             node, name = line.split(maxsplit=1)
@@ -27,7 +26,7 @@ if __name__=='__main__':
             names.update({node: name})
 
     #Leemos links de fotos
-    with open('fotitos.txt',) as ph:
+    with open('fotitos_sin_Leyre.txt',) as ph:
         fotos = []
         for line in ph:
             fotos.append(line)
@@ -36,9 +35,9 @@ if __name__=='__main__':
     G_ij = calculate_G(PI_ij)
     
     if Quantum:
-        H = Hamiltonian(PI_ij)
+        H = Hamiltonian(G_ij, style='mean')
         
-        L = Liouvillian(0.8, G_ij, H)
+        L = Liouvillian(1, G_ij, H)
         
         PR = np.zeros(n_nodes)
         p = steadystate(L)
@@ -61,7 +60,7 @@ if __name__=='__main__':
 
 
     #Pintamos la red
-    net = Network(directed=True, height="100%", width='100%', bgcolor='#34322f', font_color='white')
+    net = Network(directed=True, height="100%", width='100%', bgcolor='#242e41', font_color='white')
     net.barnes_hut()
     net.show_buttons()
 

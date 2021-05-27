@@ -1,11 +1,9 @@
 #%%
 import numpy as np
 
-from qutip.steadystate import steadystate
 
 from funciones import *
 
-from pyvis.network import Network
 
 
 from matplotlib import pyplot as plt
@@ -14,7 +12,6 @@ from matplotlib import cm
 
 import pickle
 
-import networkx as nx
 import matplotlib.pyplot as plt
 
 
@@ -23,7 +20,7 @@ alpha_range = np.linspace(0.1,1,N_samples)
 
 styles = ['mean','max','min','norm','diff']
 
-N_nodos = 40
+N_nodos = 41
 
 #%%
 normal_rank = {}

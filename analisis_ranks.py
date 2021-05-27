@@ -41,7 +41,7 @@ params = {"ytick.color" : "w",
 plt.rcParams.update(params)
 
 
-N_nodos = 40
+N_nodos = 41
 #%%
 
 #plt.scatter(np.arange(0,N_nodos), p_QR-p_PR)
