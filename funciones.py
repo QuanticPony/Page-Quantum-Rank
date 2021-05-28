@@ -149,10 +149,10 @@ def print_rank(P, names=None):
     t = np.argsort(P)[::-1]
     if names is not None:
         for j,i in enumerate(t):
-            print(f'{j+1})', names[i+1], f"{P[i]:.6}")
+            print(f'{j+1})', names[i+1], f"\t{P[i]:.6}")
     else:
         for j,i in enumerate(t):
-            print(f'{j+1})', i+1, f"{P[i]:.6}")
+            print(f'{j+1})', i+1, f"\t{P[i]:.6}")
 
         
         
