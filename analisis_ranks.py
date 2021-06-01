@@ -2,6 +2,7 @@
 import numpy as np
 
 from qutip.steadystate import steadystate
+from scipy.stats.stats import KruskalResult
 
 from funciones import *
 
@@ -37,7 +38,7 @@ with open('datos.dat', 'rb') as file:
 params = {"ytick.color" : "w",
           "xtick.color" : "w",
           "axes.labelcolor" : "w",
-          "axes.edgecolor" : "w"}
+          "axes.edgecolor" : "w",}
 plt.rcParams.update(params)
 
 
@@ -54,8 +55,8 @@ for i, pg in enumerate(p_GR):
             diff[i] = j-i
     
 fig1, ax1 = plt.subplots()
-
-ax1.scatter(np.arange(0,N_nodos), diff)
+ax1.set_title(r'Comparación PR y QR $(\alpha = 0.9)$', c="w")
+ax1.scatter(np.arange(0,N_nodos), diff, c='orange')
 
 # plt.scatter(np.arange(0,N_nodos), GR[p_GR])
 # plt.scatter(np.arange(0,N_nodos), QR[p_QR])
@@ -65,8 +66,7 @@ ax1.scatter(np.arange(0,N_nodos), diff)
 ax1.grid()
 ax1.set_xlabel('Posición PR')
 ax1.set_ylabel('(Posición QR) - (Posición PR)')
-
-plt.show()
+fig1.savefig(f'Diff quantum.png', transparent=True)
 
 
 #%%
@@ -235,6 +235,106 @@ for d in hist:
 #nx.draw(FisCord)
 #plt.show()
 # %%
+
+inv_names= {}
+names: dict
+for k,v in names.items():
+    inv_names.update({v:k})
+    
+
+with open('discord_k_rank.txt', 'r', encoding='UTF-8') as file:
+    KR = []
+    for line in file:
+        name, k = line.split(sep=':')
+        try:
+            KR.append(inv_names[name]-1)
+        except:
+            pass
+        
+with open('discord_lvl_rank.txt', 'r', encoding='UTF-8') as file:
+    LR = []
+    for line in file:
+        name, k = line.split(sep=':')
+        try:
+            LR.append(inv_names[name]-1)
+        except:
+            pass
+
+
+diffK = []
+range_K = []
+p_QR_K = []
+p_QR_L = []
+
+for i, pg in enumerate(p_QR):
+    try: 
+        index = KR.index(pg)
+        p_QR_K.append(pg)
+    except Exception:
+        pass
+    try: 
+        index = LR.index(pg)
+        p_QR_L.append(pg)
+    except Exception:
+        pass
+
+for i, pg in enumerate(p_QR_K):
+    try: 
+        index = KR.index(pg)
+        range_K.append(i)
+        diffK.append(i-index)
+    except Exception:
+        pass
+            
+            
+print(sum(diffK))
+            
+diffL = []
+range_L = []
+
+for i, pg in enumerate(p_QR_L):
+    p_QR: np.ndarray
+    try: 
+        index = LR.index(pg)
+        range_L.append(i)
+        diffL.append(i-index)
+    except Exception:
+        pass
+            
+    
+print(sum(diffL))
+
+fig1, ax1 = plt.subplots()
+
+ax1.set_title('Comparación PR y Karma-Rank', c="w")
+ax1.scatter(range_K, diffK, c='orange')
+
+# plt.scatter(np.arange(0,N_nodos), GR[Q])
+# plt.scatter(np.arange(0,N_nodos), QR[p_QR])
+
+#plt.scatter(np.arange(0,N_nodos), GR)
+#plt.scatter(np.arange(0,N_nodos), GR)
+ax1.grid()
+ax1.set_xlabel('Posición PR')
+ax1.set_ylabel('(Posición KR) - (Posición PR)')
+fig1.savefig(f'KR.png', transparent=True)
+
+fig2, ax2 = plt.subplots()
+
+ax2.set_title('Comparación PR y Level-Rank', c="w")
+ax2.scatter(range_L, diffL, c='orange')
+
+# plt.scatter(np.arange(0,N_nodos), GR[p_GR])
+# plt.scatter(np.arange(0,N_nodos), QR[p_QR])
+
+#plt.scatter(np.arange(0,N_nodos), GR)
+#plt.scatter(np.arange(0,N_nodos), GR)
+ax2.grid()
+ax2.set_xlabel('Posición PR')
+ax2.set_ylabel('(Posición LR) - (Posición PR)')
+fig2.savefig(f'LR.png', transparent=True)
+
+
 
 # fig4, ax4=plt.subplots()
 # a=list(hist.keys())
